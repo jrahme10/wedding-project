@@ -1,9 +1,16 @@
-import { useState } from 'react';
-import { Mail, Calendar, Heart, Users, MapPin, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Mail, Calendar, Heart, Users, MapPin, Clock, Camera } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Index = () => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,46 +28,132 @@ const Index = () => {
   const weddingDate = new Date();
   weddingDate.setMonth(weddingDate.getMonth() + 6);
   
-  // Calculate days until wedding
-  const daysUntilWedding = Math.ceil(
-    (weddingDate.getTime() - new Date().getTime()) / (1000 * 3600 * 24)
-  );
+  // Calculate time until wedding
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = weddingDate.getTime() - now;
+      
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      
+      setTimeLeft({ days, hours, minutes, seconds });
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [weddingDate]);
+
+  // Floating hearts animation
+  useEffect(() => {
+    const createHeart = () => {
+      const heart = document.createElement('div');
+      heart.innerHTML = '❤';
+      heart.className = 'floating-heart';
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = Math.random() * 3 + 2 + 's';
+      heart.style.opacity = Math.random() * 0.5 + 0.5 + '';
+      heart.style.fontSize = Math.random() * 20 + 10 + 'px';
+      
+      document.body.appendChild(heart);
+      
+      setTimeout(() => {
+        heart.remove();
+      }, 5000);
+    };
+    
+    const heartInterval = setInterval(createHeart, 300);
+    
+    return () => clearInterval(heartInterval);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-rose-100 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-rose-100 flex flex-col relative overflow-hidden">
+      {/* Floating hearts */}
+      <style>{`
+        .floating-heart {
+          position: absolute;
+          top: 100%;
+          animation: floatUp linear forwards;
+          z-index: 0;
+        }
+        @keyframes floatUp {
+          to {
+            transform: translateY(-100vh) rotate(360deg);
+          }
+        }
+      `}</style>
+      
+      {/* Decorative elements */}
+      <div className="absolute top-20 left-10 w-24 h-24 rounded-full bg-rose-200/30 blur-xl"></div>
+      <div className="absolute bottom-20 right-10 w-32 h-32 rounded-full bg-pink-200/30 blur-xl"></div>
+      <div className="absolute top-1/3 right-1/4 w-16 h-16 rounded-full bg-rose-300/20 blur-xl"></div>
+      
       {/* Header */}
-      <header className="py-6 px-4 sm:px-6 lg:px-8">
+      <header className="py-6 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex justify-between items-center">
-          <div className="text-2xl font-serif font-bold text-rose-800">
-            &</div>
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-3xl font-serif font-bold text-rose-800 flex items-center"
+          >
+            <Heart className="w-8 h-8 mr-2 text-rose-500" />
+            Sarah & Michael
+          </motion.div>
           <nav className="hidden md:block">
             <ul className="flex space-x-8">
-              <li><a href="#details" className="text-rose-700 hover:text-rose-900 transition-colors">Details</a></li>
-              <li><a href="#rsvp" className="text-rose-700 hover:text-rose-900 transition-colors">RSVP</a></li>
-              <li><a href="#gallery" className="text-rose-700 hover:text-rose-900 transition-colors">Gallery</a></li>
+              <li><a href="#details" className="text-rose-700 hover:text-rose-900 transition-colors font-medium">Details</a></li>
+              <li><a href="#rsvp" className="text-rose-700 hover:text-rose-900 transition-colors font-medium">RSVP</a></li>
+              <li><a href="#gallery" className="text-rose-700 hover:text-rose-900 transition-colors font-medium">Gallery</a></li>
             </ul>
           </nav>
         </div>
       </header>
 
       {/* Hero Section */}
-      <main className="flex-grow flex flex-col items-center justify-center px-4 py-12 text-center">
+      <main className="flex-grow flex flex-col items-center justify-center px-4 py-12 text-center relative z-10">
         <div className="max-w-4xl">
-          <div className="mb-6">
-            <Heart className="w-12 h-12 text-rose-500 mx-auto" />
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="mb-8"
+          >
+            <div className="relative inline-block">
+              <Heart className="w-16 h-16 text-rose-400 mx-auto" />
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 rounded-full"></div>
+              <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-pink-400 rounded-full"></div>
+            </div>
+          </motion.div>
           
-          <h1 className="text-4xl md:text-6xl font-serif font-bold text-rose-900 mb-4">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="text-5xl md:text-7xl font-serif font-bold text-rose-900 mb-6"
+          >
             Sarah <span className="text-rose-500">&</span> Michael
-          </h1>
+          </motion.h1>
           
-          <p className="text-xl md:text-2xl text-rose-700 mb-2">
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-2xl md:text-3xl text-rose-700 mb-4 font-light"
+          >
             Are Getting Married
-          </p>
+          </motion.p>
           
-          <div className="flex items-center justify-center space-x-2 text-rose-600 mb-10">
-            <Calendar className="w-5 h-5" />
-            <span className="text-lg font-medium">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="flex items-center justify-center space-x-3 text-rose-600 mb-16"
+          >
+            <Calendar className="w-6 h-6" />
+            <span className="text-xl font-medium">
               {weddingDate.toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -68,102 +161,147 @@ const Index = () => {
                 day: 'numeric' 
               })}
             </span>
-          </div>
+          </motion.div>
           
           {/* Countdown */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 mb-10 shadow-lg max-w-2xl mx-auto">
-            <h2 className="text-xl font-semibold text-rose-800 mb-4">Counting Down to Our Big Day</h2>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 mb-16 shadow-xl max-w-3xl mx-auto border border-rose-100"
+          >
+            <h2 className="text-2xl font-semibold text-rose-800 mb-6">Counting Down to Our Big Day</h2>
             <div className="flex justify-center space-x-4 md:space-x-8">
               <div className="text-center">
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-rose-100 flex items-center justify-center mb-2">
-                  <span className="text-2xl md:text-3xl font-bold text-rose-700">{daysUntilWedding}</span>
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-rose-100 to-pink-100 flex items-center justify-center mb-3 shadow-md border border-rose-50">
+                  <span className="text-2xl md:text-3xl font-bold text-rose-700">{timeLeft.days}</span>
                 </div>
-                <span className="text-sm md:text-base text-rose-600">Days</span>
+                <span className="text-sm md:text-base text-rose-600 font-medium">Days</span>
               </div>
               <div className="text-center">
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-rose-100 flex items-center justify-center mb-2">
-                  <span className="text-2xl md:text-3xl font-bold text-rose-700">00</span>
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-rose-100 to-pink-100 flex items-center justify-center mb-3 shadow-md border border-rose-50">
+                  <span className="text-2xl md:text-3xl font-bold text-rose-700">{timeLeft.hours.toString().padStart(2, '0')}</span>
                 </div>
-                <span className="text-sm md:text-base text-rose-600">Hours</span>
+                <span className="text-sm md:text-base text-rose-600 font-medium">Hours</span>
               </div>
               <div className="text-center">
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-rose-100 flex items-center justify-center mb-2">
-                  <span className="text-2xl md:text-3xl font-bold text-rose-700">00</span>
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-rose-100 to-pink-100 flex items-center justify-center mb-3 shadow-md border border-rose-50">
+                  <span className="text-2xl md:text-3xl font-bold text-rose-700">{timeLeft.minutes.toString().padStart(2, '0')}</span>
                 </div>
-                <span className="text-sm md:text-base text-rose-600">Minutes</span>
+                <span className="text-sm md:text-base text-rose-600 font-medium">Minutes</span>
+              </div>
+              <div className="text-center">
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-rose-100 to-pink-100 flex items-center justify-center mb-3 shadow-md border border-rose-50">
+                  <span className="text-2xl md:text-3xl font-bold text-rose-700">{timeLeft.seconds.toString().padStart(2, '0')}</span>
+                </div>
+                <span className="text-sm md:text-base text-rose-600 font-medium">Seconds</span>
               </div>
             </div>
-          </div>
+          </motion.div>
           
           {/* RSVP Form */}
-          <div id="rsvp" className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl font-semibold text-rose-800 mb-4">Be the First to Know</h2>
-            <p className="text-rose-600 mb-6">Sign up to receive updates and save the date!</p>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.5 }}
+            id="rsvp" className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-xl max-w-2xl mx-auto mb-16 border border-rose-100"
+          >
+            <h2 className="text-3xl font-semibold text-rose-800 mb-4">Be the First to Know</h2>
+            <p className="text-rose-600 mb-8 text-lg">Sign up to receive updates and save the date!</p>
             
             {isSubmitted ? (
-              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-xl mb-6 text-lg"
+              >
                 Thank you! We'll keep you updated.
-              </div>
+              </motion.div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-                <div className="flex-grow">
+              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-grow relative">
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-rose-400" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Your email address"
-                    className="w-full px-4 py-3 rounded-lg border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent"
+                    className="w-full pl-12 pr-4 py-4 rounded-xl border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent text-lg"
                     required
                   />
                 </div>
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-medium rounded-lg transition-colors shadow-md hover:shadow-lg"
+                  className="px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-medium rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 duration-300 text-lg"
                 >
                   Notify Me
                 </button>
               </form>
             )}
-          </div>
+          </motion.div>
           
           {/* Wedding Details */}
-          <div id="details" className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg">
-              <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MapPin className="w-6 h-6 text-rose-600" />
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.6 }}
+            id="details" className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-20"
+          >
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-rose-100 hover:shadow-xl transition-shadow duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-rose-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <MapPin className="w-8 h-8 text-rose-600" />
               </div>
-              <h3 className="text-xl font-semibold text-rose-800 mb-2">Venue</h3>
-              <p className="text-rose-600">Sunset Gardens</p>
-              <p className="text-rose-600">123 Romance Lane</p>
+              <h3 className="text-2xl font-semibold text-rose-800 mb-4">Venue</h3>
+              <p className="text-rose-600 mb-2 font-medium">Sunset Gardens</p>
+              <p className="text-rose-600 mb-2">123 Romance Lane</p>
               <p className="text-rose-600">Napa Valley, CA</p>
             </div>
             
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg">
-              <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-6 h-6 text-rose-600" />
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-rose-100 hover:shadow-xl transition-shadow duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-rose-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Clock className="w-8 h-8 text-rose-600" />
               </div>
-              <h3 className="text-xl font-semibold text-rose-800 mb-2">Time</h3>
-              <p className="text-rose-600">Ceremony: 4:00 PM</p>
-              <p className="text-rose-600">Reception: 6:00 PM</p>
+              <h3 className="text-2xl font-semibold text-rose-800 mb-4">Time</h3>
+              <p className="text-rose-600 mb-2 font-medium">Ceremony: 4:00 PM</p>
+              <p className="text-rose-600 mb-2">Reception: 6:00 PM</p>
               <p className="text-rose-600">Cocktail Hour: 5:00 PM</p>
             </div>
             
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg">
-              <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-rose-600" />
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-rose-100 hover:shadow-xl transition-shadow duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-rose-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Users className="w-8 h-8 text-rose-600" />
               </div>
-              <h3 className="text-xl font-semibold text-rose-800 mb-2">Dress Code</h3>
-              <p className="text-rose-600">Formal</p>
-              <p className="text-rose-600">Black Tie Optional</p>
+              <h3 className="text-2xl font-semibold text-rose-800 mb-4">Dress Code</h3>
+              <p className="text-rose-600 mb-2 font-medium">Formal</p>
+              <p className="text-rose-600 mb-2">Black Tie Optional</p>
               <p className="text-rose-600">Garden Chic</p>
             </div>
-          </div>
+          </motion.div>
+          
+          {/* Gallery Preview */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.7 }}
+            id="gallery" className="max-w-4xl mx-auto mb-16"
+          >
+            <h2 className="text-3xl font-semibold text-rose-800 mb-8">Our Love Story</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((item) => (
+                <div key={item} className="aspect-square bg-gradient-to-br from-rose-200 to-pink-200 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
+                  <div className="w-full h-full bg-gray-200 border-2 border-dashed rounded-xl flex items-center justify-center text-rose-300">
+                    <Camera className="w-8 h-8" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="py-8 text-center text-rose-600">
-        <p className="mb-2">We can't wait to celebrate with you!</p>
+      <footer className="py-10 text-center text-rose-600 relative z-10">
+        <p className="mb-4 text-lg">We can't wait to celebrate with you!</p>
         <p className="text-sm">© {new Date().getFullYear()} Sarah & Michael. All rights reserved.</p>
       </footer>
     </div>
